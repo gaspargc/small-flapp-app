@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { CartContext } from "./CartContext"
-import { Cart } from "@/types/cart"
+import { Cart } from "@/lib/types/ui/cartTypes"
 
 export default function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null)
