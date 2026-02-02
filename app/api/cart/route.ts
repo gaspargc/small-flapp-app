@@ -1,4 +1,4 @@
-import { ShippingCartProduct, ShippingCustomerData } from "@/lib/types/shipping/courierTypes";
+import { ShippingCartProduct, ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
 import { TariffResult } from "@/lib/shipping/TariffResult";
 import TariffCalculator from "@/lib/shipping/TariffCalculator";
 

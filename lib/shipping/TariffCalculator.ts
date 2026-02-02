@@ -1,5 +1,5 @@
 import CourierFactory from "./CourierFactory";
-import { ShippingDTO } from "@/lib/types/shipping/courierTypes";
+import { ShippingDTO } from "@/lib/types/shipping/CourierTypes";
 import { TariffResult } from "./TariffResult";
 
 

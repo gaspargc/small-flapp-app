@@ -1,5 +1,5 @@
-import { ShippingDTO } from "@/lib/types/shipping/courierTypes";
-import { Courier } from "./courier";
+import { ShippingDTO } from "@/lib/types/shipping/CourierTypes";
+import Courier from "./Courier";
 import { TariffResult } from "../TariffResult";
 
 abstract class AbstractCourier<TPayload, TResponse> implements Courier {

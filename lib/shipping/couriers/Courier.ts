@@ -1,6 +1,6 @@
 import { TariffResult } from "../TariffResult";
 
-export interface Courier {
+export default interface Courier {
     readonly name: string;
     calculateTariff(): Promise<TariffResult>;
 }

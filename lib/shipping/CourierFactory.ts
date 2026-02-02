@@ -1,5 +1,5 @@
-import { Courier } from "./couriers/courier";
-import { ShippingDTO } from "@/lib/types/shipping/courierTypes";
+import Courier from "./couriers/Courier";
+import { ShippingDTO } from "@/lib/types/shipping/CourierTypes";
 import TraeloYaCourier from "./couriers/TraeloYaCourier";
 /* import UderCourier from "./couriers/UderCourier"; */
 

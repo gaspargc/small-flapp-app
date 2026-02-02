@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext } from "react"
-import { Cart } from "@/lib/types/ui/cartTypes"
+import { Cart } from "@/lib/types/ui/CartTypes"
 
 export interface CartContextValue {
   cart: Cart | null
