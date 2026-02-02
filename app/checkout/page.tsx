@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CornerDownLeft, Trash, Truck } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { CornerDownLeft, Trash, Truck, ShoppingCart } from 'lucide-react';
 import useCart from "@/hooks/useCart";
 import { useEffect } from "react";
-
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,22 +26,54 @@ export default function CheckoutPage() {
   }
 
   const listProducts = cart.products.map((product) => (
-    <li key={product.id}>
-      <div className="flex flex-row">
-        <div>
-          <Image src={product.thumbnail} alt={product.title} width={200} height={200} />
-          <h3>{product.title}</h3>
-        </div>
+    <Card key={product.id} className="mb-4">
+      <CardContent className="p-4">
+        <div className="flex gap-4">
+          {/* Image */}
+          <div className="relative h-24 w-24 flex-shrink-0">
+            <Image 
+              src={product.thumbnail} 
+              alt={product.title} 
+              fill
+              className="object-cover"
+            />
+          </div>
 
-        <div>
-          <p>Cantidad: {product.quantity}</p>
+          {/* Product Information */}
+          <div className="flex flex-1 flex-col justify-between">
+            <div>
+              <h3 className="font-semibold text-lg">{product.title}</h3>
+              <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+                <span>Cantidad: <strong>{product.quantity}</strong></span>
+                <Separator orientation="vertical" className="h-4" />
+                <span>Precio: <strong>${product.price}</strong></span>
+              </div>
+            </div>
+
+            {/* Prices and Discount */}
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {product.discountPercentage > 0 && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    -{product.discountPercentage}%
+                  </Badge>
+                )}
+              </div>
+              <div className="text-right">
+                {product.discountPercentage > 0 && (
+                  <p className="text-sm text-muted-foreground line-through">
+                    ${product.total}
+                  </p>
+                )}
+                <p className="text-lg font-bold">
+                  ${product.discountedTotal}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p>Precio unitario: ${product.price}</p>
-        <p>Total: ${product.total}</p>
-        <p>Descuento: {product.discountPercentage}%</p>
-        <p>Total con descuento: ${product.discountedTotal}</p>
-      </div>
-    </li>
+      </CardContent>
+    </Card>
   ));
 
   function handleClearCart() {
@@ -47,26 +81,123 @@ export default function CheckoutPage() {
     router.replace('/');
   }
 
-  return (
-    <div className="flex flex-row">
-      <div className="basis-2/3">
-        <ul>{listProducts}</ul>
-      </div>
-      <div className="basis-1/3">
-        <h2>Resumen de Compra</h2>
-        <p>Total de productos: {cart.totalProducts}</p>
-        <p>Cantidad total: {cart.totalQuantity}</p>
-        <p>Total: ${cart.total}</p>
-        <p>Total con descuento: ${cart.discountedTotal}</p>
+  async function handleCartShipping() {
+  try {
+    if (!cart) return;
 
-        <Button className="mb-4 mt-4"><Truck /> Cotizar despacho</Button>
-        <div className="flex flex-row gap-4">
-          <Button variant="destructive" onClick={handleClearCart}><Trash /> Limpiar carrito</Button>
-          <Button variant="secondary" asChild>
-            <Link href="/">
-              <CornerDownLeft /> Volver
-            </Link>
-          </Button>
+    const res = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // datos del usuario
+      }),
+    });
+
+    if (!res.ok) throw new Error("Error al cotizar despacho");
+
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <ShoppingCart className="h-8 w-8" />
+          Checkout
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Revisa tu pedido antes de continuar
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Products */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Productos ({cart.totalProducts})</CardTitle>
+              <CardDescription>
+                {cart.totalQuantity} {cart.totalQuantity === 1 ? 'artículo' : 'artículos'} en total
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {listProducts}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Purchase Summary */}
+        <div className="lg:col-span-1">
+          <Card className="sticky top-4">
+            <CardHeader>
+              <CardTitle>Resumen de Compra</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Purchase Details */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total de productos:</span>
+                  <span className="font-medium">{cart.totalProducts}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Cantidad total:</span>
+                  <span className="font-medium">{cart.totalQuantity}</span>
+                </div>
+                
+                <Separator className="my-3" />
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal:</span>
+                  <span className="font-medium">${cart.total}</span>
+                </div>
+                
+                {cart.total !== cart.discountedTotal && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Descuento:</span>
+                    <span className="font-medium">
+                      -${(cart.total - cart.discountedTotal).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                
+                <Separator className="my-3" />
+                
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span>${cart.discountedTotal} USD</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-4">
+                <Button className="w-full" size="lg" onClick={handleCartShipping}>
+                  <Truck className="mr-2 h-4 w-4" />
+                  Cotizar despacho
+                </Button>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleClearCart}
+                    className="flex-1"
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    Limpiar
+                  </Button>
+                  <Button variant="outline" asChild className="flex-1">
+                    <Link href="/">
+                      <CornerDownLeft className="mr-2 h-4 w-4" />
+                      Volver
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

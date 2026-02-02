@@ -51,6 +51,21 @@ interface TraeloYaResponse {
     error?: string;
 }
 
+// Is safe to assume TraeloYa fee is in CLP
+function CLPtoUSD(clp: number): number {
+    const exchangeRate = 865.80; // 2-Jan-2026
+    return clp / exchangeRate;
+}
+
+function USDtoCLP(usd: number): number {
+    const exchangeRate = 865.80; // 2-Jan-2026
+    return usd * exchangeRate;
+}
+
+function cubicCmToCubicM(cm3: number): number {
+    return cm3 / 1_000_000;
+}
+
 
 class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse> {
     name = "TraeloYa";
@@ -59,10 +74,11 @@ class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse>
 
     async calculateTariff(): Promise<TariffResult> {
         const requestBody = this.buildRequestBody();
+        console.log("TraeloYa request body:", JSON.stringify(requestBody));
 
         try {
             const response = await this.fetchTariff(requestBody);
-            console.log("TraeloYa response:", response);
+            console.log("TraeloYa response:", JSON.stringify(response));
             if (response.error) {
                 return {
                     available: false,
@@ -71,7 +87,8 @@ class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse>
                 };
             }
 
-            const pricingTotal = response.deliveryOffers.pricing.total;
+            const pricingTotal = CLPtoUSD(response.deliveryOffers.pricing.total);
+            console.log("TraeloYa pricing total (USD):", pricingTotal);
             return {
                 available: true,
                 courierName: this.name,
@@ -90,17 +107,17 @@ class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse>
 
         const items = products.map(product => ({
             quantity: product.quantity,
-            value: product.price * product.quantity,
-            volume: product.width * product.height * product.depth
+            value: USDtoCLP(product.price),
+            volume: cubicCmToCubicM(product.width * product.height * product.depth)
         }));
         
         const waypoints: TraeloYaPayload["waypoints"] = [
             {
                 type: "PICK_UP",
-                addressStreet: "Juan de Valiente 3630",
-                city: "Santiago",
-                phone: "+56912345678",
-                name: "Tienda Flapp"
+                addressStreet: process.env.NEXT_PUBLIC_PICK_UP_STREET || "",
+                city: process.env.NEXT_PUBLIC_PICK_UP_COMMUNE || "",
+                phone: process.env.NEXT_PUBLIC_PICK_UP_PHONE || "",
+                name: process.env.NEXT_PUBLIC_PICK_UP_NAME || ""
             },
             {
                 type: "DROP_OFF",

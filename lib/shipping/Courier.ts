@@ -1,4 +1,4 @@
-import { TariffResult } from "../TariffResult";
+import { TariffResult } from "./TariffResult";
 
 export default interface Courier {
     readonly name: string;
