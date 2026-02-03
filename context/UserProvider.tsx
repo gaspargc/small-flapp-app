@@ -13,7 +13,11 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     setTariffResult(null);
   };
 
-  const [shippingAddress, setShippingAddress] = useState<ShippingCustomerData | null>(null)
+  const [shippingAddress, _setShippingAddress] = useState<ShippingCustomerData | null>(null)
+  const setShippingAddress = (address: ShippingCustomerData) => {
+    _setShippingAddress(address);
+    setTariffResult(null);
+  }
 
   const [tariffResult, setTariffResult] = useState<ApiCartResponse | null>(null)
   const clearTariffResult = () => setTariffResult(null)

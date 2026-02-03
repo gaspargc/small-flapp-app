@@ -252,7 +252,7 @@ export default function CheckoutPage() {
                 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
-                  <span>${cart.discountedTotal} USD</span>
+                  <span>${(cart.discountedTotal + (tariffResult ? tariffResult.price : 0)).toFixed(2)} USD</span>
                 </div>
               </div>
 
