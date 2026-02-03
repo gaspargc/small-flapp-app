@@ -3,7 +3,7 @@
 import { createContext } from "react"
 import { Cart } from "@/lib/types/ui/CartTypes"
 import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
-import { ApiCartResponse } from "@/lib/types/api/cart/ApiCartResponse";
+import { ApiCartResponse } from "@/lib/types/api/cart/types";
 
 export interface UserContextValue {
   cart: Cart | null

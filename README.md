@@ -35,19 +35,18 @@ npm install
 NEXT_PUBLIC_DUMMY_API_URL=https://dummyjson.com
 
 # Configuración de pickup (origen del despacho)
-NEXT_PUBLIC_PICK_UP_STREET="Av. Providencia 1234"
-NEXT_PUBLIC_PICK_UP_COMMUNE="Providencia"
+NEXT_PUBLIC_PICK_UP_STREET="Juan de Valiente 3630"
+NEXT_PUBLIC_PICK_UP_COMMUNE="Vitacura"
 NEXT_PUBLIC_PICK_UP_PHONE="+56912345678"
-NEXT_PUBLIC_PICK_UP_NAME="Mi Tienda"
-
-# Los siguientes son datos de ejemplo
+NEXT_PUBLIC_PICK_UP_NAME="Tienda Flapp"
 
 # TraeloYa API
 TRAELO_YA_API_KEY=tu_api_key
-TRAELO_YA_API_URL=https://api.traeloya.com/v1/estimate
+TRAELO_YA_API_URL=https://recruitment.weflapp.com/tarifier/traelo_ya
+
 # Uder API
 UDER_API_KEY=tu_api_key
-UDER_API_URL=https://api.uder.com/v1/deliveries/quote
+UDER_API_URL=https://recruitment.weflapp.com/tarifier/uder
 ```
 
 ## Ejecución
@@ -157,3 +156,33 @@ Cotiza el despacho para un carrito de compras.
 | `npm run build` | Construye la aplicación para producción |
 | `npm start` | Inicia servidor de producción |
 | `npm run lint` | Ejecuta ESLint |
+
+# Sobre la elaboración de la app
+
+## Uso de IA
+En general, se utilizó IA para guíarse sobre como construir la solución general de la aplicación, mejorar la eficiencia en la programación, autocompletado (Github Copilot) y la corrección de errores menores. En ningún caso NO se validaron las respuestas generadas por los modelos de IA.
+
+Usos particulares:
+- Styling de landing page
+- ChatGPT para guiar la construcción del state del carrito (context + hook)
+- [Styling de checkout](https://chatgpt.com/share/697d3aa9-c930-8000-a3c8-da508d40d19a)
+- [Imprimir tabla en consola](https://chatgpt.com/share/697e3b8f-de68-8000-8f2e-2d94b0431282)
+- [Guía sobre CourierFactory](https://chatgpt.com/share/697eaed2-91f0-8000-ab7b-051eacd0825f)
+- ChatGPT para guiar la solución de tipos genéricos en la clase abstracta de Courier
+- [Claude para mejorar el diseño inicial de la página de checkout](https://claude.ai/share/552e6a3e-2449-41e7-93d2-a590116456e7) (luego fue modificado)
+- [Claude para validar la data del form address con Zod](https://claude.ai/share/c8bc63b1-5850-4c88-81f6-c32b56c5258c)
+- Copilot para generar rápidamente el auto-focus al rellenar el form de address
+
+## Asunciones
+
+- Habrá al menos un carrito disponible.
+- Los productos del carrito existirán siempre; de otro modo el endpoint retornará un fallo.
+- No se necesitarán más de dos waypoints en la respuesta y body de TraeloYa.
+- Todos los couriers son endpoints POST donde el header debe llevar la API key.
+- TraeloYa solo devuelve un único `deliveryOffer`.
+- Solo existe una única tienda Flapp como PICK_UP; no es necesario seleccionar entre varias opciones. Se considera que esta información no es sensible.
+- TraeloYa trabaja con CLP y m³ de input, y output en CLP.
+- Se considera ciudad = comuna.
+- El precio informado al courier será sin descuento para todos los casos.
+- Uder trabaja en USD.
+- De antemano no se sabe la divisa del próximo courier a agregar.
