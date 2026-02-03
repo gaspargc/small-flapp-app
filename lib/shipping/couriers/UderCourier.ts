@@ -52,8 +52,8 @@ interface UderResponse {
 
 class UderCourier extends AbstractCourier<UderPayload, UderResponse> {
     name = "Uder";
-    apiKey = process.env.NEXT_PUBLIC_UDER_API_KEY || "";
-    apiUrl = process.env.NEXT_PUBLIC_UDER_API_URL || "";
+    apiKey = process.env.UDER_API_KEY || "";
+    apiUrl = process.env.UDER_API_URL || "";
 
     async calculateTariff(): Promise<TariffResult> {
         const requestBody = this.buildRequestBody();

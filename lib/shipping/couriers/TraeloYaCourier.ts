@@ -69,8 +69,8 @@ function cubicCmToCubicM(cm3: number): number {
 
 class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse> {
     name = "TraeloYa";
-    apiKey = process.env.NEXT_PUBLIC_TRAELO_YA_API_KEY || "";
-    apiUrl = process.env.NEXT_PUBLIC_TRAELO_YA_API_URL || "";
+    apiKey = process.env.TRAELO_YA_API_KEY || "";
+    apiUrl = process.env.TRAELO_YA_API_URL || "";
 
     async calculateTariff(): Promise<TariffResult> {
         const requestBody = this.buildRequestBody();
