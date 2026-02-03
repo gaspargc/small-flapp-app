@@ -6,12 +6,12 @@ import { toast } from "sonner"
 import { Dices } from "lucide-react"
 import { Spinner } from './ui/spinner';
 import { useState } from 'react';
-import useCart from "@/hooks/useCart";
+import useUserData from "@/hooks/useUserData";
 
 const API_URL = process.env.NEXT_PUBLIC_DUMMY_API_URL;
 
 export default function GenerateCartButton() {
-  const { setCart } = useCart();
+  const { setCart } = useUserData();
   const totalCartsRef = useRef<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

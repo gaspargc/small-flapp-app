@@ -7,7 +7,7 @@ class TariffCalculator {
 
   static async getLowestTariff(shippingData: ShippingDTO): Promise<TariffResult> {
     const couriers = CourierFactory.createAllCouriers(shippingData);
-    
+
     let lowestTariff: TariffResult = {
       available: false,
       courierName: "",

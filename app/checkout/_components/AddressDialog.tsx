@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { MapPinPlus, MapPinPen } from 'lucide-react';
 import { useState } from "react"
 import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
+import useUserData from "@/hooks/useUserData"
 
 
 const addressSchema = z.object({
@@ -36,12 +37,15 @@ interface AddressDialogProps {
 
 
 export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onSubmit }: AddressDialogProps) {
-  const [formData, setFormData] = useState<ShippingCustomerData>({
-    name: "",
-    shippingStreet: "",
-    commune: "",
-    phone: ""
-  });
+  const { shippingAddress } = useUserData();
+  const [formData, setFormData] = useState<ShippingCustomerData>(() => 
+    shippingAddress ?? {
+      name: "",
+      shippingStreet: "",
+      commune: "",
+      phone: ""
+    }
+  );
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -92,9 +96,9 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
         ) : (
           <div className="flex justify-between items-center p-4 border rounded-md">
             <div className="text-sm">
-              <p className="text-muted-foreground">Enviar a {formData.name}</p>
-              <p className="font-semibold">{formData.shippingStreet}, {formData.commune}</p>
-              <p className="text-muted-foreground">{formData.phone}</p>
+              <p className="text-muted-foreground">Enviar a {shippingAddress?.name}</p>
+              <p className="font-semibold">{shippingAddress?.shippingStreet}, {shippingAddress?.commune}</p>
+              <p className="text-muted-foreground">{shippingAddress?.phone}</p>
             </div>
             <DialogTrigger asChild>
               <Button className="flex" variant="outline">

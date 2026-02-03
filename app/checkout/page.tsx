@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import useUserData from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -10,25 +11,26 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 import { CornerDownLeft, Trash, Truck, ShoppingCart } from 'lucide-react';
-import useCart from "@/hooks/useCart";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
 import { AddressDialog } from "./_components/AddressDialog";
 
-interface APIResponse {
-  error?: string;
-  courier: string;
-  price: number;
-}
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, clearCart } = useCart();
-  const [addressData, setAddressData] = useState<ShippingCustomerData | null>(null);
-  const [isAddressDataValid, setIsAddressDataValid] = useState(false);
+  const {
+    cart,
+    clearCart,
+    shippingAddress,
+    setShippingAddress,
+    tariffResult,
+    setTariffResult
+  } = useUserData();
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [isWaitingForTariff, setIsWaitingForTariff] = useState(false);
-  const [tariffResult, setTariffResult] = useState<APIResponse | null>(null);
+  const [isAddressDataValid, setIsAddressDataValid] = useState<boolean>(!!shippingAddress);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
 
   useEffect(() => {
     if (!cart) {
@@ -37,6 +39,10 @@ export default function CheckoutPage() {
   }, [cart, router]);
 
   function handleClearCart() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     clearCart();
     router.replace('/');
   }
@@ -49,7 +55,15 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Cancelar petición anterior si existe
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+
       setIsWaitingForTariff(true);
+      console.log("Calculating shipping for cart:", cart);
+      console.log("Using shipping address:", shippingAddress);
       
       // Transformar productos al formato esperado por el backend
       const productsPayload = cart.products.map(p => ({
@@ -65,12 +79,13 @@ export default function CheckoutPage() {
         body: JSON.stringify({ 
           products: productsPayload,
           customer_data: {
-            name: addressData?.name,
-            shipping_street: addressData?.shippingStreet,
-            commune: addressData?.commune,
-            phone: addressData?.phone
+            name: shippingAddress?.name,
+            shipping_street: shippingAddress?.shippingStreet,
+            commune: shippingAddress?.commune,
+            phone: shippingAddress?.phone
           }
-        })
+        }),
+        signal: abortControllerRef.current.signal
       });
 
       if (!res.ok) {
@@ -82,6 +97,10 @@ export default function CheckoutPage() {
       const data = await res.json();
       setTariffResult({ error: undefined, courier: data.courier, price: data.price });
     } catch (err) {
+      // Ignorar errores de abort (petición cancelada intencionalmente)
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error(err);
       setTariffResult({ error: "Error inesperado", courier: "", price: 0 });
     } finally {
@@ -90,7 +109,7 @@ export default function CheckoutPage() {
   }
 
   function handleAddressSubmit(address: ShippingCustomerData) {
-    setAddressData(address);
+    setShippingAddress(address);
     setIsAddressDialogOpen(false);
     setIsAddressDataValid(true);
   }
@@ -148,6 +167,7 @@ export default function CheckoutPage() {
       </CardContent>
     </Card>
   ));
+
 
   return (
     <div className="container mx-auto px-4 py-8">

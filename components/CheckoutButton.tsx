@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import useCart from "@/hooks/useCart";
+import useUserData from "@/hooks/useUserData";
 import { ArrowRightToLine } from "lucide-react"
 
 export default function CheckoutButton() {
   const router = useRouter();
-  const { cart } = useCart();
+  const { cart } = useUserData();
 
   useEffect(() => {
     router.prefetch('/checkout');
