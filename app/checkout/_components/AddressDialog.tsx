@@ -13,7 +13,7 @@ import { Field, FieldGroup, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MapPinPlus, MapPinPen } from 'lucide-react';
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
 import useUserData from "@/hooks/useUserData"
 
@@ -48,6 +48,19 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Refs para auto-focus
+  const streetRef = useRef<HTMLInputElement>(null);
+  const communeRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
+
+  function handleKeyDown(e: React.KeyboardEvent, nextRef: React.RefObject<HTMLInputElement | HTMLButtonElement | null>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  }
 
   function handleChange(field: keyof ShippingCustomerData, value: string) {
     setFormData({
@@ -120,6 +133,7 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
                 name="name" 
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, streetRef)}
                 placeholder="e.g Pedro Duarte"
               />
               {errors.name && (
@@ -130,10 +144,12 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
             <Field>
               <Label htmlFor="shippingStreet">Calle</Label>
               <Input
+                ref={streetRef}
                 id="shippingStreet"
                 name="shippingStreet"
                 value={formData.shippingStreet}
                 onChange={(e) => handleChange("shippingStreet", e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, communeRef)}
                 placeholder="e.g Av. Siempre Viva 123" 
               />
               {errors.shippingStreet && (
@@ -144,10 +160,12 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
             <Field>
               <Label htmlFor="commune">Comuna</Label>
               <Input
+                ref={communeRef}
                 id="commune"
                 name="commune"
                 value={formData.commune}
                 onChange={(e) => handleChange("commune", e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, phoneRef)}
                 placeholder="e.g Vitacura"
                 />
               {errors.commune && (
@@ -158,10 +176,12 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
             <Field>
               <Label htmlFor="phone">Teléfono</Label>
               <Input
+                ref={phoneRef}
                 id="phone"
                 name="phone"
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, submitRef)}
                 placeholder="e.g +56 9 1234 5678"
               />
               {errors.phone && (
@@ -173,7 +193,7 @@ export function AddressDialog({ isOpen, isAddressDataValid, onOpen, onClose, onS
             <DialogClose asChild>
               <Button variant="outline">Cancelar</Button>
             </DialogClose>
-            <Button type="submit">Guardar cambios</Button>
+            <Button ref={submitRef} type="submit">Guardar cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>
