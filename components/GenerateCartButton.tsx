@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Dices } from "lucide-react"
+import { Spinner } from './ui/spinner';
+import { useState } from 'react';
 import useCart from "@/hooks/useCart";
 
 const API_URL = process.env.NEXT_PUBLIC_DUMMY_API_URL;
@@ -11,7 +13,7 @@ const API_URL = process.env.NEXT_PUBLIC_DUMMY_API_URL;
 export default function GenerateCartButton() {
   const { setCart } = useCart();
   const totalCartsRef = useRef<number | null>(null);
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateCart = async () => {
     try {
@@ -23,6 +25,8 @@ export default function GenerateCartButton() {
       if (!total || total <= 0) {
         throw new Error("No carts available");
       }
+
+      setIsLoading(true);
 
       const randomSkip = Math.floor(Math.random() * total);
       const response = await fetch(
@@ -41,12 +45,14 @@ export default function GenerateCartButton() {
     } catch (error) {
       console.error(error);
       toast.error("Error al generar el carrito, por favor intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Button size="lg" onClick={generateCart}>
-      <Dices /> Generar carrito
+    <Button size="lg" onClick={generateCart} disabled={isLoading}>
+      {isLoading ? <Spinner className="h-4 w-4" /> : <Dices />} Generar carrito
     </Button>
   );
 };

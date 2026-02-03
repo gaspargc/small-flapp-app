@@ -57,7 +57,7 @@ class UderCourier extends AbstractCourier<UderPayload, UderResponse> {
 
     async calculateTariff(): Promise<TariffResult> {
         const requestBody = this.buildRequestBody();
-        console.log("Uder request body:", JSON.stringify(requestBody));
+
         try {
             const response = await this.fetchTariff(requestBody);
             if (response.error) {
@@ -69,7 +69,6 @@ class UderCourier extends AbstractCourier<UderPayload, UderResponse> {
             }
 
             const pricingTotal = response.fee;
-            console.log("Uder pricing total (USD):", pricingTotal);
             return {
                 available: true,
                 courierName: this.name,

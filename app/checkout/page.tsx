@@ -7,13 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner"
+import { Spinner } from "@/components/ui/spinner"
 import { CornerDownLeft, Trash, Truck, ShoppingCart } from 'lucide-react';
 import useCart from "@/hooks/useCart";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
+import { AddressDialog } from "./_components/AddressDialog";
+
+interface APIResponse {
+  error?: string;
+  courier: string;
+  price: number;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, clearCart } = useCart();
+  const [addressData, setAddressData] = useState<ShippingCustomerData | null>(null);
+  const [isAddressDataValid, setIsAddressDataValid] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [isWaitingForTariff, setIsWaitingForTariff] = useState(false);
+  const [tariffResult, setTariffResult] = useState<APIResponse | null>(null);
 
   useEffect(() => {
     if (!cart) {
@@ -21,10 +36,68 @@ export default function CheckoutPage() {
     }
   }, [cart, router]);
 
+  function handleClearCart() {
+    clearCart();
+    router.replace('/');
+  }
+
+  async function handleCartShipping() {
+    try {
+      if (!cart) return;
+      if (!isAddressDataValid) {
+        toast.error("Debes agregar una dirección válida para cotizar el despacho.");
+        return;
+      }
+
+      setIsWaitingForTariff(true);
+      
+      // Transformar productos al formato esperado por el backend
+      const productsPayload = cart.products.map(p => ({
+        productId: p.id,
+        price: p.price,
+        quantity: p.quantity,
+        discount: p.discountPercentage
+      }));
+
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          products: productsPayload,
+          customer_data: {
+            name: addressData?.name,
+            shipping_street: addressData?.shippingStreet,
+            commune: addressData?.commune,
+            phone: addressData?.phone
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        setTariffResult({ error: errorText, courier: "", price: 0 });
+        return;
+      }
+
+      const data = await res.json();
+      setTariffResult({ error: undefined, courier: data.courier, price: data.price });
+    } catch (err) {
+      console.error(err);
+      setTariffResult({ error: "Error inesperado", courier: "", price: 0 });
+    } finally {
+      setIsWaitingForTariff(false);
+    }
+  }
+
+  function handleAddressSubmit(address: ShippingCustomerData) {
+    setAddressData(address);
+    setIsAddressDialogOpen(false);
+    setIsAddressDataValid(true);
+  }
+
   if (!cart) {
     return null;
   }
-
   const listProducts = cart.products.map((product) => (
     <Card key={product.id} className="mb-4">
       <CardContent className="p-4">
@@ -75,32 +148,6 @@ export default function CheckoutPage() {
       </CardContent>
     </Card>
   ));
-
-  function handleClearCart() {
-    clearCart();
-    router.replace('/');
-  }
-
-  async function handleCartShipping() {
-  try {
-    if (!cart) return;
-
-    const res = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        // datos del usuario
-      }),
-    });
-
-    if (!res.ok) throw new Error("Error al cotizar despacho");
-
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error(err);
-  }
-}
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -165,6 +212,23 @@ export default function CheckoutPage() {
                 )}
                 
                 <Separator className="my-3" />
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Envío:</span>
+                  {isWaitingForTariff ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : tariffResult === null ? (
+                    <span className="text-muted-foreground">-</span>
+                  ) : tariffResult.error ? (
+                    <span className="font-medium text-red-600">No hay envíos disponibles :(</span>
+                  ) : (
+                    <span className="font-medium text-primary text-right">
+                      Envío Flapp con {tariffResult.courier} ⚡️ - ${tariffResult.price.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+
+                <Separator className="my-3" />
                 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
@@ -174,10 +238,23 @@ export default function CheckoutPage() {
 
               {/* Action Buttons */}
               <div className="space-y-3 pt-4">
-                <Button className="w-full" size="lg" onClick={handleCartShipping}>
-                  <Truck className="mr-2 h-4 w-4" />
-                  Cotizar despacho
-                </Button>
+                <AddressDialog 
+                  isOpen={isAddressDialogOpen}
+                  isAddressDataValid={isAddressDataValid}
+                  onOpen={() => setIsAddressDialogOpen(true)}
+                  onClose={() => setIsAddressDialogOpen(false)}
+                  onSubmit={handleAddressSubmit}
+                />
+                <div onClick={handleCartShipping}>
+                  <Button className="w-full" size="lg" disabled={!isAddressDataValid}>
+                    {isWaitingForTariff ? (
+                      <Spinner className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Truck className="mr-2 h-4 w-4" />
+                    )}
+                    Cotizar despacho
+                  </Button>
+                </div>
                 
                 <div className="flex gap-2">
                   <Button 

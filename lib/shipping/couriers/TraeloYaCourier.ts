@@ -74,11 +74,10 @@ class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse>
 
     async calculateTariff(): Promise<TariffResult> {
         const requestBody = this.buildRequestBody();
-        console.log("TraeloYa request body:", JSON.stringify(requestBody));
 
         try {
             const response = await this.fetchTariff(requestBody);
-            console.log("TraeloYa response:", JSON.stringify(response));
+
             if (response.error) {
                 return {
                     available: false,
@@ -88,7 +87,6 @@ class TraeloYaCourier extends AbstractCourier<TraeloYaPayload, TraeloYaResponse>
             }
 
             const pricingTotal = CLPtoUSD(response.deliveryOffers.pricing.total);
-            console.log("TraeloYa pricing total (USD):", pricingTotal);
             return {
                 available: true,
                 courierName: this.name,
