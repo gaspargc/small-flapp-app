@@ -40,8 +40,7 @@ export default function GenerateCartButton() {
       const data = await response.json();
       const cart = data.carts[0];
       setCart(cart);
-      console.log("Generated cart:", cart);
-
+      
     } catch (error) {
       console.error(error);
       toast.error("Error al generar el carrito, por favor intenta nuevamente.");

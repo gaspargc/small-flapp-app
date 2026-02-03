@@ -20,7 +20,6 @@ export default function CheckoutButton() {
       toast.warning("Debes generar un carrito antes de finalizar la compra.");
       return;
     }
-    console.log("Checkout cart:", cart);
     router.push('/checkout');
   };
 

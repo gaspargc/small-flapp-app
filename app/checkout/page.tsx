@@ -55,17 +55,13 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Cancelar petición anterior si existe
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
       abortControllerRef.current = new AbortController();
 
       setIsWaitingForTariff(true);
-      console.log("Calculating shipping for cart:", cart);
-      console.log("Using shipping address:", shippingAddress);
       
-      // Transformar productos al formato esperado por el backend
       const productsPayload = cart.products.map(p => ({
         productId: p.id,
         price: p.price,
@@ -97,7 +93,6 @@ export default function CheckoutPage() {
       const data = await res.json();
       setTariffResult({ error: undefined, courier: data.courier, price: data.price });
     } catch (err) {
-      // Ignorar errores de abort (petición cancelada intencionalmente)
       if (err instanceof Error && err.name === 'AbortError') {
         return;
       }
