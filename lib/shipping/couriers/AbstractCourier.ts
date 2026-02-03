@@ -18,19 +18,22 @@ abstract class AbstractCourier<TPayload, TResponse> implements Courier {
     protected abstract buildRequestBody(): TPayload;
     
     protected async fetchTariff(body: TPayload): Promise<TResponse> {
-        return fetch(this.apiUrl, {
+        const response = await fetch(this.apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-Api-Key": this.apiKey
             },
             body: JSON.stringify(body)
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error(`API call failed with status ${response.status}`);
-            }
-            return response.json() as Promise<TResponse>;
         });
+
+        if (!response.ok) {
+            throw new Error(`API call failed with status ${response.status}`);
+        }
+
+        const data = await response.json() as TResponse;
+        console.log(`Response from ${this.name}:`, data);
+        return data;
     }
 
 }
