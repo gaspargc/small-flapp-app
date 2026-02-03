@@ -1,36 +1,159 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📦 Flapp E-commerce
 
-## Getting Started
+Aplicación frontend-backend que simula el comportamiento de una compra a través de un e-commerce llamado "Flapp".
 
-First, run the development server:
+> 🚀 Demo: https://small-flapp-app.vercel.app
 
+## Tecnologías
+
+- **Framework:** Next.js 16 (App Router)
+- **Frontend:** React 19, TypeScript, Tailwind CSS
+- **UI Components:** Radix UI, Lucide Icons
+- **Validación:** Zod
+
+## Requisitos Previos
+
+- Node.js 18 o superior
+- npm, yarn, pnpm o bun
+
+## Instalación
+
+1. Clonar el repositorio:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <url-del-repositorio>
+cd small-flapp-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Instalar dependencias:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Crear archivo de variables de entorno `.env`:
+```bash
+# API de productos (DummyJSON)
+NEXT_PUBLIC_DUMMY_API_URL=https://dummyjson.com
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Configuración de pickup (origen del despacho)
+NEXT_PUBLIC_PICK_UP_STREET="Av. Providencia 1234"
+NEXT_PUBLIC_PICK_UP_COMMUNE="Providencia"
+NEXT_PUBLIC_PICK_UP_PHONE="+56912345678"
+NEXT_PUBLIC_PICK_UP_NAME="Mi Tienda"
 
-## Learn More
+# Los siguientes son datos de ejemplo
 
-To learn more about Next.js, take a look at the following resources:
+# TraeloYa API
+TRAELO_YA_API_KEY=tu_api_key
+TRAELO_YA_API_URL=https://api.traeloya.com/v1/estimate
+# Uder API
+UDER_API_KEY=tu_api_key
+UDER_API_URL=https://api.uder.com/v1/deliveries/quote
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Ejecución
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Desarrollo
+```bash
+npm run dev
+```
+Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
 
-## Deploy on Vercel
+### Producción
+```bash
+npm run build
+npm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🐳 Ejecución opcional con Docker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Requisitos
+- Docker instalado en tu sistema
+
+### Construir y ejecutar
+
+1. Construir la imagen:
+```bash
+docker build -t flapp-app .
+```
+
+2. Ejecutar el contenedor:
+```bash
+docker run -p 3000:3000 --env-file .env flapp-app
+```
+
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
+
+# Resumen de la estructura del proyecto
+
+```
+├── app/                    # App Router de Next.js
+│   ├── api/cart/          # API Route para cotización de despacho
+│   ├── checkout/          # Página de checkout
+│   └── page.tsx           # Página principal
+├── components/            # Componentes reutilizables
+│   └── ui/               # Componentes de UI (Button, Card, etc.)
+├── context/              # Context API (UserProvider)
+├── hooks/                # Custom hooks
+└── lib/
+    ├── shipping/         # Lógica de tarificación
+    │   ├── couriers/    # Implementación de couriers (TraeloYa, Uder)
+    │   ├── TariffCalculator.ts
+    │   └── CourierFactory.ts
+    └── types/           # Tipos TypeScript
+
+```
+
+## Funcionalidades
+
+1. **Generar Carrito:** Genera un carrito aleatorio con productos de DummyJSON API
+2. **Agregar Dirección:** Formulario validado para ingresar dirección de envío
+3. **Cotizar Despacho:** Calcula la tarifa más económica entre los couriers disponibles
+4. **Verificación de Stock:** Valida disponibilidad de productos antes de cotizar
+
+## API Endpoints
+
+### POST /api/cart
+Cotiza el despacho para un carrito de compras.
+
+**Request Body:**
+```json
+{
+  "products": [
+    {
+      "productId": 1,
+      "price": 100,
+      "quantity": 2,
+      "discount": 10
+    }
+  ],
+  "customer_data": {
+    "name": "Juan Pérez",
+    "shipping_street": "Av. Siempre Viva 123",
+    "commune": "Providencia",
+    "phone": "+56912345678"
+  }
+}
+```
+
+**Response (200):**
+```json
+{
+  "courier": "TraeloYa",
+  "price": 5990
+}
+```
+**Response (400):**
+```json
+{
+  "error": "No hay tarifas disponibles para el envío solicitado."
+}
+```
+
+## Scripts Disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Inicia servidor de desarrollo |
+| `npm run build` | Construye la aplicación para producción |
+| `npm start` | Inicia servidor de producción |
+| `npm run lint` | Ejecuta ESLint |
