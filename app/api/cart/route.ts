@@ -1,13 +1,13 @@
 import { ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
 import TariffCalculator from "@/lib/shipping/TariffCalculator";
-import { RawCartPayload, RawProduct } from "@/lib/types/api/cart/types";
+import { RawCartPayload, RawProduct } from "@/lib/cart/types";
 import { 
     parseCustomerData,
     getProductsDetails,
     verifyProductStock,
     addRealStockToProducts,
     printCart
-} from "@/lib/types/api/cart/cartUtils";
+} from "@/lib/cart/cartUtils";
 
 
 export async function POST(request: Request) {

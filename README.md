@@ -10,6 +10,7 @@ Aplicación frontend-backend que simula el comportamiento de una compra a travé
 - **Frontend:** React 19, TypeScript, Tailwind CSS
 - **UI Components:** Radix UI, Lucide Icons
 - **Validación:** Zod
+- **Testing**: Jest
 
 ## Requisitos Previos
 
@@ -82,6 +83,33 @@ docker run -p 3000:3000 --env-file .env flapp-app
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
 
+## Tests
+
+El proyecto incluye pruebas unitarias usando **Jest** para validar la lógica crítica de la aplicación.
+
+### Ejecutar Tests
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar pruebas en modo watch
+npm test -- --watch
+
+# Ejecutar pruebas con cobertura
+npm test -- --coverage
+```
+
+## Scripts Disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Inicia servidor de desarrollo |
+| `npm run build` | Construye la aplicación para producción |
+| `npm start` | Inicia servidor de producción |
+| `npm run lint` | Ejecuta ESLint |
+| `npm test` | Ejecuta las pruebas unitarias con Jest |
+
 # Resumen de la estructura del proyecto
 
 ```
@@ -147,15 +175,6 @@ Cotiza el despacho para un carrito de compras.
   "error": "No hay tarifas disponibles para el envío solicitado."
 }
 ```
-
-## Scripts Disponibles
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Inicia servidor de desarrollo |
-| `npm run build` | Construye la aplicación para producción |
-| `npm start` | Inicia servidor de producción |
-| `npm run lint` | Ejecuta ESLint |
 
 # Sobre la elaboración de la app
 

@@ -1,6 +1,6 @@
-import { RawCustomerData, RawProduct } from "@/lib/types/api/cart/types";
+import { RawCustomerData, RawProduct } from "@/lib/cart/types";
 import { ShippingCartProduct, ShippingCustomerData } from "@/lib/types/shipping/CourierTypes";
-import { ApiProduct } from "@/lib/types/api/cart/types";
+import { ApiProduct } from "@/lib/cart/types";
 
 
 const API_URL = process.env.NEXT_PUBLIC_DUMMY_API_URL;
