@@ -43,11 +43,11 @@ NEXT_PUBLIC_PICK_UP_NAME="Tienda Flapp"
 
 # TraeloYa API
 TRAELO_YA_API_KEY=tu_api_key
-TRAELO_YA_API_URL=https://recruitment.weflapp.com/tarifier/traelo_ya
+TRAELO_YA_API_URL=tu_api_url
 
 # Uder API
 UDER_API_KEY=tu_api_key
-UDER_API_URL=https://recruitment.weflapp.com/tarifier/uder
+UDER_API_URL=tu_api_url
 ```
 
 ## Ejecución
